@@ -5,7 +5,7 @@ from models.window import Window, Cell, Line
 from models.maze import Maze
 
 def main() -> int:
-  win = Window(660, 540)
+  win = Window(660, 660)
   win.maze = Maze(30, 30, 20, 16, 30, win)
   win.maze.solve()
   win.wait_for_close()

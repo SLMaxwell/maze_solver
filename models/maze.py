@@ -12,10 +12,12 @@ class Maze:
     self.num_cols = num_cols
     self.cell_size = cell_size
     self.solved = False
+    self.build_count = 0
     random.seed(seed)
 
   def _create_cells(self):
     self._cells = []
+    self.build_count = 0
     for i in range(self.num_cols):
       self._cells.append([])
       for j in range(self.num_rows):
@@ -73,10 +75,12 @@ class Maze:
     while (True):
       visit = self._get_visit_list(i, j)
       if len(visit) == 0:
-        self._draw_cell(i, j, self.win.show_build)
+        self._draw_cell(i, j, self.win.show_build, True)
         return
 
       pd = visit.pop(random.randint(0, len(visit)-1))
+      self.build_count += 1
+      self._cells[pd.x][pd.y].num = self.build_count
       if (i == pd.x and j > pd.y):
         # pd is Above current
         self._cells[i][j].top = False
@@ -102,7 +106,7 @@ class Maze:
         cell.visited = False
 
   def _solve_r(self, i, j):
-    if self.win.animate_fast_solve or self.win.animate_solve:
+    if self.win.animate_solve:
       self._animate()
 
     current_cell = self._cells[i][j]
@@ -146,16 +150,16 @@ class Maze:
 
   def _move_to_r(self, current_cell, p):
     next_cell = self._cells[p.x][p.y]
-    current_cell.draw_move(next_cell, show_solve=self.win.show_solve)
+    current_cell.draw_move(next_cell, show_wrong_turns=self.win.show_wrong_turns, show_num=self.win.show_build_num)
     result = self._solve_r(p.x, p.y)
     if (not result):
-      current_cell.draw_move(next_cell, True, self.win.show_solve)
-    if self.win.animate_solve and not self.win.animate_fast_solve:
+      current_cell.draw_move(next_cell, True, self.win.show_wrong_turns, self.win.show_build_num)
+    if self.win.animate_solve:
       self._animate()
     return result
 
-  def _draw_cell(self, i, j, animate=True):
-    self._cells[i][j].draw()
+  def _draw_cell(self, i, j, animate=True, draw_num=False):
+    self._cells[i][j].draw(show_num=self.win.show_build_num and draw_num)
     if animate:
       self._animate()
 
