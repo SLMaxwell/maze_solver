@@ -11,13 +11,17 @@ class Cell:
     self.left = left
     self.bottom = bottom
     self.right = right
-    self.visited = False
+
+    # Build state
     self.num = None
     self.num_id = 0
     self.top_id = 0
     self.left_id = 0
     self.bottom_id = 0
     self.right_id = 0
+
+    # Solve State
+    self.visited = False # Used in Build too.
     self.move_ids = {}
 
   def __eq__(self, other):
@@ -75,7 +79,7 @@ class Cell:
   def draw_move(self, to_cell, undo=False, tag="solution"):
     color = "light grey" if undo else "red"
     if to_cell.num not in self.move_ids:
-      self.move_ids[to_cell.num] = self.draw_line(self.center(), to_cell.center(), color, tags=tag)
+      self.move_ids[to_cell.num] = self.draw_line(self.center(), to_cell.center(), color, tags='moves')
     
     visible = False
     if tag == "solution" and not self.win.manual_solve:
@@ -87,7 +91,7 @@ class Cell:
     if undo:
       tag += "-wrong_turns"
 
-    self.win.canvas.itemconfig(self.move_ids[to_cell.num], fill=color, tags=tag, state=self.win.view_state(visible))
+    self.win.canvas.itemconfig(self.move_ids[to_cell.num], fill=color, tags=(tag, 'moves'), state=self.win.view_state(visible))
 
     if undo:
       self.draw_num()
@@ -110,3 +114,7 @@ class Cell:
           text=self.num, tags="build_num")
         
       self.win.canvas.tag_raise(self.num_id)
+
+  def reset(self):
+    self.visited = False
+    self.move_ids = {}

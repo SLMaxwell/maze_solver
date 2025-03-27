@@ -74,10 +74,11 @@ class Window:
 
     if len(self.instructions) == 0:
       self.instructions['controls'] = self.draw_text(Point(30, 540), "Controls", "underline")
-      self.instructions['esc'] = self.draw_text(Point(30, 570), "ESC or q: Exit Maze Solver")
-      self.instructions['space'] = self.draw_text(Point(30, 590), "Space: Generate New Maze")
-      self.instructions['space'] = self.draw_text(Point(30, 610), "↑ | w: Up        ← | a: Left")
-      self.instructions['space'] = self.draw_text(Point(30, 630), "↓ | s: Down      → | d: Right")
+      self.instructions['esc'] = self.draw_text(Point(30, 570),   "ESC or q: Exit Maze Solver")
+      self.instructions['space'] = self.draw_text(Point(30, 590), "Space:    Generate New Maze")
+      self.instructions['space'] = self.draw_text(Point(30, 610), "r:        Re-solve Maze")
+      self.instructions['space'] = self.draw_text(Point(30, 630), "↑ | w: Up       ← | a: Left")
+      self.instructions['space'] = self.draw_text(Point(30, 650), "↓ | s: Down     → | d: Right")
 
       self.instructions['settings'] = self.draw_text(Point(400, 540), "Settings", "underline")
       self.instructions['build'] = self.draw_text(Point(400, 570), build)
@@ -119,6 +120,9 @@ class Window:
           self.maze.solve()
       case 'Escape' | 'q':
         self.close()
+      case 'r':
+        self.canvas.delete('moves')
+        self.maze.solve(False)
       case 'b':
         self.show_build = not self.show_build
         self.show_instructions()

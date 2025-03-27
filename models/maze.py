@@ -105,7 +105,7 @@ class Maze:
   def _reset_cells_visited(self):
     for col in self._cells:
       for cell in col:
-        cell.visited = False
+        cell.reset()
 
   def _solve_r(self, i, j):
     self._animate(self.win.animate_solve)
@@ -168,12 +168,13 @@ class Maze:
       self.win.redraw()
       time.sleep(0.005)
   
-  def solve(self):
+  def solve(self, new_maze=True):
+    if new_maze:
+      self._create_cells()
+      self._break_entrance_and_exit()
+      self._break_walls_r(random.randint(0, self.num_cols-1),
+                          random.randint(0, self.num_rows-1))
     self.solved = False
-    self._create_cells()
-    self._break_entrance_and_exit()
-    self._break_walls_r(random.randint(0, self.num_cols-1),
-                        random.randint(0, self.num_rows-1))
     self._reset_cells_visited()
     self.solved = self._solve_r(0,0)
     return self.solved
