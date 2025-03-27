@@ -3,7 +3,7 @@ class Line:
     self.start = start
     self.end = end
 
-  def draw(self, canvas, fill_color, tags=None):
+  def draw(self, canvas, fill_color=None, tags=None):
     return canvas.create_line(
       self.start.x, self.start.y,
       self.end.x, self.end.y,

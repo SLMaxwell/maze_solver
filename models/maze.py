@@ -12,8 +12,10 @@ class Maze:
     self.num_cols = num_cols
     self.cell_size = cell_size
     self.solved = False
+    self.man_solved = False
     self.build_count = 0
-    self.man_loc = Point(0,0)
+    self.man_index = Point(0,0)
+
     random.seed(seed)
 
   def _create_cells(self):
@@ -117,13 +119,13 @@ class Maze:
       # First Cell Draw entrance
       p1 = current_cell.center()
       p2 = Point(p1.x, p1.y - current_cell.size)
-      current_cell.draw_line(p1, p2, "light green", 'entrance')
+      current_cell.draw_line(p1, p2, self.win.colors['entrance'], 'entrance')
     
     if (i == self.num_cols-1 and j == self.num_rows-1):
       # Last Cell Show Exit and stop solving.
       p1 = current_cell.center()
       p2 = Point(p1.x, p1.y + current_cell.size)
-      current_cell.draw_line(p1, p2, "light green", 'exit')
+      current_cell.draw_line(p1, p2, self.win.colors['exit'], 'exit')
       return True
     
     # Above
@@ -152,11 +154,13 @@ class Maze:
   def _move_to_r(self, current_cell, p):
     next_cell = self._cells[p.x][p.y]
     current_cell.draw_move(next_cell)
+    self._animate(self.win.animate_solve)
+
     result = self._solve_r(p.x, p.y)
     if (not result):
-      current_cell.draw_move(next_cell, True)
-    
-    self._animate(self.win.animate_solve)
+      current_cell.draw_move(next_cell)
+      self._animate(self.win.animate_solve)
+
     return result
 
   def _draw_cell(self, i, j):
@@ -177,8 +181,40 @@ class Maze:
     self.solved = False
     self._reset_cells_visited()
     self.solved = self._solve_r(0,0)
+    self._reset_cells_visited()
+    self.man_solved = False
+    self.man_index = Point(0,0)
+    self._cells[self.man_index.x][self.man_index.y].visited = True
     return self.solved
   
   def manual_move(self, direction):
     # Only allow moving when in manual mode.
-    print(f"moving: {direction.lower()}")
+    if self.man_solved == True:
+      return
+    
+    current_cell = self._cells[self.man_index.x][self.man_index.y]
+    next_index = Point(self.man_index.x, self.man_index.y)
+    match direction:
+      case 'up':
+        if not current_cell.top and next_index.y > 0:
+          next_index.y -= 1
+      case 'down':
+        if not current_cell.bottom:
+          next_index.y += 1
+      case 'left':
+        if not current_cell.left:
+          next_index.x -= 1
+      case 'right':
+        if not current_cell.right:
+          next_index.x += 1
+
+    # print(f"moving: {direction.lower()} - Curr Cell: {current_cell} - Man index: {self.man_index} - Next Index: {next_index}")
+    if next_index.y == self.num_rows:
+      self.man_solved = True
+      self.win.canvas.itemconfig("manual_solution-good", fill=self.win.colors['exit'])
+    elif next_index != self.man_index:
+      next_cell = self._cells[next_index.x][next_index.y]
+      current_cell.draw_move(next_cell, "manual_solution")
+      next_cell.visited = True
+      self.man_index = next_index
+      self._animate(True)

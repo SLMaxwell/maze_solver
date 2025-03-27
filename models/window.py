@@ -24,10 +24,19 @@ class Window:
       "Linux": 8,
       "Darwin": 12,
       "Windows": 9,}[platform]
+    self.colors = {
+      'entrance':'light green',
+      'exit':'light green',
+      'wall':'black',
+      'num':'darkblue',
+      'solution':'red',
+      'manual_solution':'red',
+      'wrong_turns':'light grey',
+      }
 
-    self.show_build = False
+    self.show_build = True
     self.show_build_num = False
-    self.animate_solve = False
+    self.animate_solve = True
     self.show_wrong_turns = False
     self.manual_solve = False
 
@@ -56,7 +65,7 @@ class Window:
   def close(self):
     self.running = False
 
-  def draw_line(self, line, fill_color, tags=None):
+  def draw_line(self, line, fill_color=None, tags=None):
     return line.draw(self.canvas, fill_color, tags)
   
   def reset_window(self):
