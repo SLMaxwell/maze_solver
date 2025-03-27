@@ -16,9 +16,9 @@ class Window:
     self.root_tk.bind("<KeyPress>", self.handle_keypress)
     self.maze = None
 
-    self.show_build = True
+    self.show_build = False
     self.show_build_num = False
-    self.animate_solve = True
+    self.animate_solve = False
     self.show_wrong_turns = False
     self.manual_solve = False
 
@@ -37,8 +37,8 @@ class Window:
   def close(self):
     self.running = False
 
-  def draw_line(self, line, fill_color):
-    return line.draw(self.canvas, fill_color)
+  def draw_line(self, line, fill_color, tags=None):
+    return line.draw(self.canvas, fill_color, tags)
   
   def reset_window(self):
     self.canvas.delete("all")
@@ -65,28 +65,27 @@ class Window:
       self.instructions['wrong_turns'] = self.draw_text(Point(400, 630), wrong_turns)
       self.instructions['manual_solve'] = self.draw_text(Point(400, 650), manual_solve)
     else:
-      self.canvas.itemconfigure(self.instructions['build'], text = build)
-      self.canvas.itemconfigure(self.instructions['build_nums'], text = build_nums)
-      self.canvas.itemconfigure(self.instructions['animate'], text = animate)
-      self.canvas.itemconfigure(self.instructions['manual_solve'], text = manual_solve)
-      self.canvas.itemconfigure(self.instructions['wrong_turns'], text = wrong_turns)
+      self.canvas.itemconfig(self.instructions['build'], text = build)
+      self.canvas.itemconfig(self.instructions['build_nums'], text = build_nums)
+      self.canvas.itemconfig(self.instructions['animate'], text = animate)
+      self.canvas.itemconfig(self.instructions['manual_solve'], text = manual_solve)
+      self.canvas.itemconfig(self.instructions['wrong_turns'], text = wrong_turns)
+    
+    self.canvas.itemconfig("build_num", state=self.view_state(self.show_build_num))
+    self.canvas.itemconfig("solution", state=self.view_state(not self.manual_solve))
+    self.canvas.itemconfig("manual_solution", state=self.view_state(self.manual_solve))
+    self.canvas.itemconfig("solution-wrong_turns", state=self.view_state(self.show_wrong_turns and not self.manual_solve))
+    self.canvas.itemconfig("manual_solution-wrong_turns", state=self.view_state(self.show_wrong_turns and self.manual_solve))
 
   def on_off(self, check):
     return "On" if check else "Off"
   
+  def view_state(self, check):
+    return "normal" if check else "hidden"
+  
   def draw_text(self, p, text, font=''):
     return self.canvas.create_text(
         p.x,p.y, anchor="sw", fill="black", font=f"Arial 12 {font}", text=text)
-  
-  def view_state(self, key):
-    if isinstance(key, bool):
-      return "normal" if key else "hidden"
-    
-    match key:
-      case 'build_num':
-        state = "normal" if self.show_build_num else "hidden"
-
-    return state
 
   def handle_keypress(self, event):
     # print(f"char: {event.char} - sym: {event.keysym} - num: {event.keysym_num}")
@@ -109,7 +108,6 @@ class Window:
         self.show_instructions()
       case 'n':
         self.show_build_num = not self.show_build_num
-        self.canvas.itemconfig("build_num", state=self.view_state('build_num'))
         self.show_instructions()
       case 'm':
         self.manual_solve = not self.manual_solve

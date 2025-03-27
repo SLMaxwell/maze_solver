@@ -3,9 +3,10 @@ class Line:
     self.start = start
     self.end = end
 
-  def draw(self, canvas, fill_color):
+  def draw(self, canvas, fill_color, tags=None):
     return canvas.create_line(
       self.start.x, self.start.y,
       self.end.x, self.end.y,
-      fill=fill_color, width=2
+      fill=fill_color, width=2,
+      tags=tags
     )

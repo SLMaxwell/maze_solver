@@ -24,10 +24,9 @@ class Maze:
         self._cells[i].append(
           Cell(self.win, self._cell_loc(i, j), self.cell_size))
     
-    if self.win.show_build:
-      for i in range(self.num_cols):
-        for j in range(self.num_rows):
-          self._draw_cell(i, j)
+    for i in range(self.num_cols):
+      for j in range(self.num_rows):
+        self._draw_cell(i, j)
 
   def _cell_loc(self, i, j):
     return Point(
@@ -36,11 +35,9 @@ class Maze:
 
   def _break_entrance_and_exit(self):
     self._cells[0][0].top = False
-    if self.win.show_build:
-      self._draw_cell(0, 0)
+    self._draw_cell(0, 0)
     self._cells[self.num_cols-1][self.num_rows-1].bottom = False
-    if self.win.show_build:
-      self._draw_cell(self.num_cols-1, self.num_rows-1)
+    self._draw_cell(self.num_cols-1, self.num_rows-1)
 
   def _need_to_visit(self, p):
     c = self._cells[p.x][p.y] if (
@@ -78,7 +75,7 @@ class Maze:
     while (True):
       visit = self._get_visit_list(i, j)
       if len(visit) == 0:
-        self._draw_cell(i, j, self.win.show_build)
+        self._draw_cell(i, j)
         return
 
       pd = visit.pop(random.randint(0, len(visit)-1))
@@ -110,8 +107,7 @@ class Maze:
         cell.visited = False
 
   def _solve_r(self, i, j):
-    if self.win.animate_solve:
-      self._animate()
+    self._animate(self.win.animate_solve)
 
     current_cell = self._cells[i][j]
     current_cell.visited = True
@@ -120,13 +116,13 @@ class Maze:
       # First Cell Draw entrance
       p1 = current_cell.center()
       p2 = Point(p1.x, p1.y - current_cell.size)
-      current_cell.draw_line(p1, p2, "light green")
+      current_cell.draw_line(p1, p2, "light green", 'entrance')
     
     if (i == self.num_cols-1 and j == self.num_rows-1):
       # Last Cell Show Exit and stop solving.
       p1 = current_cell.center()
       p2 = Point(p1.x, p1.y + current_cell.size)
-      current_cell.draw_line(p1, p2, "light green")
+      current_cell.draw_line(p1, p2, "light green", 'exit')
       return True
     
     # Above
@@ -154,21 +150,20 @@ class Maze:
 
   def _move_to_r(self, current_cell, p):
     next_cell = self._cells[p.x][p.y]
-    current_cell.draw_move(next_cell, show_wrong_turns=self.win.show_wrong_turns)
+    current_cell.draw_move(next_cell)
     result = self._solve_r(p.x, p.y)
     if (not result):
-      current_cell.draw_move(next_cell, True, self.win.show_wrong_turns)
-    if self.win.animate_solve:
-      self._animate()
+      current_cell.draw_move(next_cell, True)
+    
+    self._animate(self.win.animate_solve)
     return result
 
-  def _draw_cell(self, i, j, animate=True):
+  def _draw_cell(self, i, j):
     self._cells[i][j].draw()
-    if animate:
-      self._animate()
+    self._animate(self.win.show_build)
 
-  def _animate(self):
-    if self.win:
+  def _animate(self, process):
+    if self.win and process:
       self.win.redraw()
       time.sleep(0.005)
   

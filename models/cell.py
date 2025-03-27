@@ -65,40 +65,47 @@ class Cell:
       self.bottom_id = self.draw_line(Point(xl,yb), Point(xr,yb), "black")
       self.right_id = self.draw_line(Point(xr,yb), Point(xr,yt), "black")
     
-    self.win.canvas.itemconfigure(self.top_id, state=self.win.view_state(self.top))
-    self.win.canvas.itemconfigure(self.left_id, state=self.win.view_state(self.left))
-    self.win.canvas.itemconfigure(self.bottom_id, state=self.win.view_state(self.bottom))
-    self.win.canvas.itemconfigure(self.right_id, state=self.win.view_state(self.right))
+    self.win.canvas.itemconfig(self.top_id, state=self.win.view_state(self.top))
+    self.win.canvas.itemconfig(self.left_id, state=self.win.view_state(self.left))
+    self.win.canvas.itemconfig(self.bottom_id, state=self.win.view_state(self.bottom))
+    self.win.canvas.itemconfig(self.right_id, state=self.win.view_state(self.right))
 
     self.draw_num()
 
-  def draw_move(self, to_cell, undo=False, show_wrong_turns=False):
-    backtrack_color = "light grey" if show_wrong_turns else "white"
-    color = backtrack_color if undo else "red"
-    # color = "light grey" if undo else "red"
+  def draw_move(self, to_cell, undo=False, tag="solution"):
+    color = "light grey" if undo else "red"
     if to_cell.num not in self.move_ids:
-      self.move_ids[to_cell.num] = self.draw_line(self.center(), to_cell.center(), color)
-    else:
-      self.win.canvas.itemconfigure(self.move_ids[to_cell.num], fill=color)
+      self.move_ids[to_cell.num] = self.draw_line(self.center(), to_cell.center(), color, tags=tag)
+    
+    visible = False
+    if tag == "solution" and not self.win.manual_solve:
+      visible = True
+    if tag == "manual_solution" and self.win.manual_solve:
+      visible = True
+    if undo and visible and not self.win.show_wrong_turns:
+      visible = False
+    if undo:
+      tag += "-wrong_turns"
+
+    self.win.canvas.itemconfig(self.move_ids[to_cell.num], fill=color, tags=tag, state=self.win.view_state(visible))
 
     if undo:
       self.draw_num()
       to_cell.draw_num()
 
-  def draw_line(self, p1, p2, color):
+  def draw_line(self, p1, p2, color, tags=None):
     id = 0
     if self.win:
-      id = self.win.draw_line(Line(p1, p2), color)
+      id = self.win.draw_line(Line(p1, p2), color, tags)
     return id
   
   def draw_num(self):
     if self.win:
-      
       if self.num_id == 0 and self.num is not None:
         c = self.center()
         self.num_id = self.win.canvas.create_text(
           c.x, c.y, fill="darkblue", font="Arial 12 italic bold",
-          state=self.win.view_state('build_num'),
+          state=self.win.view_state(self.win.show_build_num),
           text=self.num, tags="build_num")
         
       self.win.canvas.tag_raise(self.num_id)
