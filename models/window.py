@@ -94,7 +94,7 @@ class Window:
         if self.maze and self.maze.solved:
           self.reset_window()
           self.maze.solve()
-      case 'Escape':
+      case 'Escape' | 'q':
         self.close()
       case 'b':
         self.show_build = not self.show_build
