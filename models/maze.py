@@ -13,6 +13,7 @@ class Maze:
     self.cell_size = cell_size
     self.solved = False
     self.build_count = 0
+    self.man_loc = Point(0,0)
     random.seed(seed)
 
   def _create_cells(self):
@@ -176,3 +177,7 @@ class Maze:
     self._reset_cells_visited()
     self.solved = self._solve_r(0,0)
     return self.solved
+  
+  def manual_move(self, direction):
+    # Only allow moving when in manual mode.
+    print(f"moving: {direction.lower()}")

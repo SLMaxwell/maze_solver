@@ -104,7 +104,8 @@ class Cell:
       if self.num_id == 0 and self.num is not None:
         c = self.center()
         self.num_id = self.win.canvas.create_text(
-          c.x, c.y, fill="darkblue", font="Arial 12 italic bold",
+          c.x, c.y, fill="darkblue",
+          font=(self.win.font, self.win.font_size, 'italic'),
           state=self.win.view_state(self.win.show_build_num),
           text=self.num, tags="build_num")
         

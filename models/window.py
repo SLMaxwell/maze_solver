@@ -2,7 +2,7 @@ from tkinter import Tk, BOTH, Canvas
 from models.cell import Cell, Line, Point
 
 class Window:
-  def __init__(self, width, height):
+  def __init__(self, width, height, platform):
     self.width = width
     self.height = height
     self.root_tk = Tk()
@@ -16,6 +16,10 @@ class Window:
     self.root_tk.bind("<KeyPress>", self.handle_keypress)
     self.maze = None
 
+    self.font = "Ubuntu Sans Mono"
+    self.font_size = 12 if platform == "Darwin" else 8
+    print(f"Platform: {platform}")
+
     self.show_build = False
     self.show_build_num = False
     self.animate_solve = False
@@ -23,6 +27,19 @@ class Window:
     self.manual_solve = False
 
     self.reset_window()
+    self.center_window(width, height)
+
+  def center_window(self, width, height):
+    # Y calculated at 3/4 because of multi monitor set-up
+    screen_width = self.root_tk.winfo_screenwidth()
+    screen_height = self.root_tk.winfo_screenheight()
+    x = int((screen_width/2) - (width/2))
+    y = int((screen_height*3/4) - (height/2))
+    self.root_tk.geometry(f'{width}x{height}+{x}+{y}')
+
+    print(f"screen width: {screen_width} - screen height: {screen_height}")
+    print(f"width: {width} - height: {height}")
+    print(f"Located x: {x} - y: {y}")
 
   def redraw(self):
     self.root_tk.update_idletasks()
@@ -49,14 +66,16 @@ class Window:
     
     build = f"b: Animate Build - [{self.on_off(self.show_build)}]"
     build_nums = f"n: Show Build Numbers - [{self.on_off(self.show_build_num)}]"
-    wrong_turns = f"s: Show Wrong Turns - [{self.on_off(self.show_wrong_turns)}]"
-    animate = f"a: Animate Solve - [{self.on_off(self.animate_solve)}]"
+    wrong_turns = f"c: Show Wrong Turns - [{self.on_off(self.show_wrong_turns)}]"
+    animate = f"v: Animate Solve - [{self.on_off(self.animate_solve)}]"
     manual_solve = f"m: Manual Solve Mode - [{self.on_off(self.manual_solve)}]"
 
     if len(self.instructions) == 0:
       self.instructions['controls'] = self.draw_text(Point(30, 540), "Controls", "underline")
-      self.instructions['esc'] = self.draw_text(Point(30, 570), "ESC: Exit Maze Solver")
+      self.instructions['esc'] = self.draw_text(Point(30, 570), "ESC or q: Exit Maze Solver")
       self.instructions['space'] = self.draw_text(Point(30, 590), "Space: Generate New Maze")
+      self.instructions['space'] = self.draw_text(Point(30, 610), "↑ | w: Up        ← | a: Left")
+      self.instructions['space'] = self.draw_text(Point(30, 630), "↓ | s: Down      → | d: Right")
 
       self.instructions['settings'] = self.draw_text(Point(400, 540), "Settings", "underline")
       self.instructions['build'] = self.draw_text(Point(400, 570), build)
@@ -83,9 +102,11 @@ class Window:
   def view_state(self, check):
     return "normal" if check else "hidden"
   
-  def draw_text(self, p, text, font=''):
+  def draw_text(self, p, text, font_decorators=''):
     return self.canvas.create_text(
-        p.x,p.y, anchor="sw", fill="black", font=f"Arial 12 {font}", text=text)
+        p.x,p.y, anchor="sw", fill="black",
+        font=(self.font, self.font_size, font_decorators),
+        text=text)
 
   def handle_keypress(self, event):
     # print(f"char: {event.char} - sym: {event.keysym} - num: {event.keysym_num}")
@@ -99,11 +120,11 @@ class Window:
       case 'b':
         self.show_build = not self.show_build
         self.show_instructions()
-      case 'a':
+      case 'v':
         self.animate_solve = not self.animate_solve
         self.manual_solve = False
         self.show_instructions()
-      case 's':
+      case 'c':
         self.show_wrong_turns = not self.show_wrong_turns
         self.show_instructions()
       case 'n':
@@ -113,3 +134,15 @@ class Window:
         self.manual_solve = not self.manual_solve
         self.animate_solve = False
         self.show_instructions()
+      case 'Up' | 'w':
+        if self.manual_solve:
+          self.maze.manual_move('up')
+      case 'Down' | 's':
+        if self.manual_solve:
+          self.maze.manual_move('down')
+      case 'Left' | 'a':
+        if self.manual_solve:
+          self.maze.manual_move('left')
+      case 'Right' | 'd':
+        if self.manual_solve:
+          self.maze.manual_move('right')
