@@ -12,7 +12,7 @@ class Cell:
     self.bottom = bottom
     self.right = right
     self.visited = False
-    self.num = 0
+    self.num = None
     self.num_id = 0
     self.top_id = 0
     self.left_id = 0
@@ -48,7 +48,7 @@ class Cell:
   def center(self):
     return Point(self.loc.x + self.size/2, self.loc.y + self.size/2)
 
-  def draw(self, loc=None, size=None, show_num=False):
+  def draw(self, loc=None, size=None):
     if (loc is not None and self.loc != loc):
       self.loc = loc
     if (size is not None and self.size != size):
@@ -65,23 +65,23 @@ class Cell:
       self.bottom_id = self.draw_line(Point(xl,yb), Point(xr,yb), "black")
       self.right_id = self.draw_line(Point(xr,yb), Point(xr,yt), "black")
     
-    self.win.canvas.itemconfigure(self.top_id, fill="black" if self.top else "white")
-    self.win.canvas.itemconfigure(self.left_id, fill="black" if self.left else "white")
-    self.win.canvas.itemconfigure(self.bottom_id, fill="black" if self.bottom else "white")
-    self.win.canvas.itemconfigure(self.right_id, fill="black" if self.right else "white")
+    self.win.canvas.itemconfigure(self.top_id, state=self.win.view_state(self.top))
+    self.win.canvas.itemconfigure(self.left_id, state=self.win.view_state(self.left))
+    self.win.canvas.itemconfigure(self.bottom_id, state=self.win.view_state(self.bottom))
+    self.win.canvas.itemconfigure(self.right_id, state=self.win.view_state(self.right))
 
-    if show_num:
-      self.draw_num()
+    self.draw_num()
 
-  def draw_move(self, to_cell, undo=False, show_wrong_turns=False, show_num=False):
+  def draw_move(self, to_cell, undo=False, show_wrong_turns=False):
     backtrack_color = "light grey" if show_wrong_turns else "white"
     color = backtrack_color if undo else "red"
+    # color = "light grey" if undo else "red"
     if to_cell.num not in self.move_ids:
       self.move_ids[to_cell.num] = self.draw_line(self.center(), to_cell.center(), color)
     else:
       self.win.canvas.itemconfigure(self.move_ids[to_cell.num], fill=color)
 
-    if undo and show_num:
+    if undo:
       self.draw_num()
       to_cell.draw_num()
 
@@ -93,8 +93,12 @@ class Cell:
   
   def draw_num(self):
     if self.win:
-      c = self.center()
-      if self.num_id == 0:
+      
+      if self.num_id == 0 and self.num is not None:
+        c = self.center()
         self.num_id = self.win.canvas.create_text(
-        c.x,c.y, fill="darkblue", font="Arial 8 italic bold", text=self.num)
+          c.x, c.y, fill="darkblue", font="Arial 12 italic bold",
+          state=self.win.view_state('build_num'),
+          text=self.num, tags="build_num")
+        
       self.win.canvas.tag_raise(self.num_id)

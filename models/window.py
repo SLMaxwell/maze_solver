@@ -46,12 +46,12 @@ class Window:
     self.show_instructions()
   
   def show_instructions(self):
-
-    build = f"b: Animate Build - [{"On" if self.show_build else "Off"}]"
-    build_nums = f"n: Show Build Numbers - [{"On" if self.show_build_num else "Off"}]"
-    wrong_turns = f"s: Show Wrong Turns - [{"On" if self.show_wrong_turns else "Off"}]"
-    animate = f"a: Animate Solve - [{"On" if self.animate_solve else "Off"}]"
-    manual_solve = f"m: Manual Solve Mode - [{"On" if self.manual_solve else "Off"}]"
+    
+    build = f"b: Animate Build - [{self.on_off(self.show_build)}]"
+    build_nums = f"n: Show Build Numbers - [{self.on_off(self.show_build_num)}]"
+    wrong_turns = f"s: Show Wrong Turns - [{self.on_off(self.show_wrong_turns)}]"
+    animate = f"a: Animate Solve - [{self.on_off(self.animate_solve)}]"
+    manual_solve = f"m: Manual Solve Mode - [{self.on_off(self.manual_solve)}]"
 
     if len(self.instructions) == 0:
       self.instructions['controls'] = self.draw_text(Point(30, 540), "Controls", "underline")
@@ -71,9 +71,22 @@ class Window:
       self.canvas.itemconfigure(self.instructions['manual_solve'], text = manual_solve)
       self.canvas.itemconfigure(self.instructions['wrong_turns'], text = wrong_turns)
 
+  def on_off(self, check):
+    return "On" if check else "Off"
+  
   def draw_text(self, p, text, font=''):
     return self.canvas.create_text(
-        p.x,p.y, anchor="sw", fill="black", font=f"Arial 10 {font}", text=text)
+        p.x,p.y, anchor="sw", fill="black", font=f"Arial 12 {font}", text=text)
+  
+  def view_state(self, key):
+    if isinstance(key, bool):
+      return "normal" if key else "hidden"
+    
+    match key:
+      case 'build_num':
+        state = "normal" if self.show_build_num else "hidden"
+
+    return state
 
   def handle_keypress(self, event):
     # print(f"char: {event.char} - sym: {event.keysym} - num: {event.keysym_num}")
@@ -96,6 +109,7 @@ class Window:
         self.show_instructions()
       case 'n':
         self.show_build_num = not self.show_build_num
+        self.canvas.itemconfig("build_num", state=self.view_state('build_num'))
         self.show_instructions()
       case 'm':
         self.manual_solve = not self.manual_solve

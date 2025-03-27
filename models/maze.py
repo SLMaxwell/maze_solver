@@ -71,32 +71,36 @@ class Maze:
     return visit
 
   def _break_walls_r(self, i, j):
-    self._cells[i][j].visited = True
+    cur_cell = self._cells[i][j]
+    cur_cell.visited = True
+    if cur_cell.num is None:
+      cur_cell.num = self.build_count
     while (True):
       visit = self._get_visit_list(i, j)
       if len(visit) == 0:
-        self._draw_cell(i, j, self.win.show_build, True)
+        self._draw_cell(i, j, self.win.show_build)
         return
 
       pd = visit.pop(random.randint(0, len(visit)-1))
       self.build_count += 1
-      self._cells[pd.x][pd.y].num = self.build_count
+      next_cell = self._cells[pd.x][pd.y]
+      next_cell.num = self.build_count
       if (i == pd.x and j > pd.y):
         # pd is Above current
-        self._cells[i][j].top = False
-        self._cells[pd.x][pd.y].bottom = False
+        cur_cell.top = False
+        next_cell.bottom = False
       if (i == pd.x and j < pd.y):
         # pd is Below current
-        self._cells[i][j].bottom = False
-        self._cells[pd.x][pd.y].top = False
+        cur_cell.bottom = False
+        next_cell.top = False
       if (i > pd.x and j == pd.y):
         # pd is Left of current
-        self._cells[i][j].left = False
-        self._cells[pd.x][pd.y].right = False
+        cur_cell.left = False
+        next_cell.right = False
       if (i < pd.x and j == pd.y):
         # pd is Right of current
-        self._cells[i][j].right = False
-        self._cells[pd.x][pd.y].left = False
+        cur_cell.right = False
+        next_cell.left = False
 
       self._break_walls_r(pd.x, pd.y)
 
@@ -150,16 +154,16 @@ class Maze:
 
   def _move_to_r(self, current_cell, p):
     next_cell = self._cells[p.x][p.y]
-    current_cell.draw_move(next_cell, show_wrong_turns=self.win.show_wrong_turns, show_num=self.win.show_build_num)
+    current_cell.draw_move(next_cell, show_wrong_turns=self.win.show_wrong_turns)
     result = self._solve_r(p.x, p.y)
     if (not result):
-      current_cell.draw_move(next_cell, True, self.win.show_wrong_turns, self.win.show_build_num)
+      current_cell.draw_move(next_cell, True, self.win.show_wrong_turns)
     if self.win.animate_solve:
       self._animate()
     return result
 
-  def _draw_cell(self, i, j, animate=True, draw_num=False):
-    self._cells[i][j].draw(show_num=self.win.show_build_num and draw_num)
+  def _draw_cell(self, i, j, animate=True):
+    self._cells[i][j].draw()
     if animate:
       self._animate()
 
