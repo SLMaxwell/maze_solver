@@ -16,9 +16,14 @@ class Window:
     self.root_tk.bind("<KeyPress>", self.handle_keypress)
     self.maze = None
 
-    self.font = "Ubuntu Sans Mono"
-    self.font_size = 12 if platform == "Darwin" else 8
-    print(f"Platform: {platform}")
+    self.font = {
+      "Linux": "Ubuntu Sans Mono",
+      "Darwin": "Menlo",
+      "Windows": "Consolas",}[platform]
+    self.font_size = {
+      "Linux": 8,
+      "Darwin": 12,
+      "Windows": 9,}[platform]
 
     self.show_build = False
     self.show_build_num = False
@@ -37,10 +42,6 @@ class Window:
     sc_mod = 3/4 if screen_height > 1080 else 1/2
     y = int((screen_height*sc_mod) - (height/2))
     self.root_tk.geometry(f'{width}x{height}+{x}+{y}')
-
-    print(f"screen width: {screen_width} - screen height: {screen_height}")
-    print(f"width: {width} - height: {height}")
-    print(f"Located x: {x} - y: {y}")
 
   def redraw(self):
     self.root_tk.update_idletasks()
