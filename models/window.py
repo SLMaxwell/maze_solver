@@ -34,7 +34,7 @@ class Window:
     screen_width = self.root_tk.winfo_screenwidth()
     screen_height = self.root_tk.winfo_screenheight()
     x = int((screen_width/2) - (width/2))
-    sc_mod = 3/4 if screen_height > 1024 else 1/2
+    sc_mod = 3/4 if screen_height > 1080 else 1/2
     y = int((screen_height*sc_mod) - (height/2))
     self.root_tk.geometry(f'{width}x{height}+{x}+{y}')
 
